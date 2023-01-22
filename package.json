@@ -1,0 +1,11 @@
+{
+  "name": "fso22",
+  "version": "0.1.0",
+  "description": "Backend application implementation for the part3 of the full stack open course.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Milan M.",
+  "license": "ISC"
+}
