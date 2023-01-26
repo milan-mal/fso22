@@ -49,12 +49,16 @@ const generateId = () => {
 app.post('/api/persons', (req, res) => {
   const body = req.body
   console.log("body", body);
-  console.log("body type", typeof(body));
 
   if (!body.name || !body.number) {
-    console.log("body is missing");
     return res.status(400).json({
-      error: 'content missing'
+      error: 'name or number is missing'
+    })
+  }
+
+  if (persons.find(p => p.name === body.name)) {
+    return res.status(400).json({
+      error: 'name already exists'
     })
   }
 
