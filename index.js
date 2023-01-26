@@ -1,4 +1,3 @@
-const { response } = require('express')
 const express = require('express')
 const app = express()
 
@@ -37,6 +36,38 @@ app.get('/info', (req, res) => {
 
 app.get('/api/persons', (req, res) => {
     res.json(persons)
+})
+
+const generateId = () => {
+  return Math.floor(Math.random() * 1000000)
+/*   const maxId = persons.length > 0
+    ? Math.max(...persons.map(n => n.id))
+    : 0
+  return maxId + 1 */
+}
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  console.log("body", body);
+  console.log("body type", typeof(body));
+
+  if (!body.name || !body.number) {
+    console.log("body is missing");
+    return res.status(400).json({
+      error: 'content missing'
+    })
+  }
+
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number
+  }
+
+  persons = persons.concat(person)
+  console.log(req.headers)
+  res.json(person)
+  res.status(200).end()
 })
 
 app.get('/api/persons/:id', (req, res) => {
