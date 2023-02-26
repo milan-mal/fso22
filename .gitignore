@@ -1,8 +1,9 @@
 # dependencies
 /node_modules
 
-# build
+# production
 /build
 
 # misc
 .env
+.vscode
