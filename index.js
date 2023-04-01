@@ -28,13 +28,6 @@ app.get('/api/persons', (req, res) => {
     res.json(persons))
 })
 
-/* 
-Generating ID not needed anymore, Mongo generates it itself.
- */
-// const generateId = () => {
-//   return Math.floor(Math.random() * 1000000)
-// }
-
 app.post('/api/persons', (req, res) => {
   const body = req.body
 
@@ -56,7 +49,6 @@ I want to integrate with Mongo first in a basic way.
 
   console.log("adding a person..")
   const person = new Person({
-    // id: generateId(),
     name: body.name,
     number: body.number
   })
@@ -66,8 +58,6 @@ I want to integrate with Mongo first in a basic way.
     mongoose.connection.close()
   })
 
-  // persons = persons.concat(person)
-  // console.log(req.headers)
   res.json(person)
   res.status(200).end()
 })
