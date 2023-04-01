@@ -4,6 +4,7 @@ const app = express()
 const cors = require('cors')
 require('dotenv').config()
 const Person = require('./models/person.js')
+const { mongo, default: mongoose } = require('mongoose')
 
 app.use(express.json())
 app.use(express.static('build'))
@@ -27,9 +28,12 @@ app.get('/api/persons', (req, res) => {
     res.json(persons))
 })
 
-const generateId = () => {
-  return Math.floor(Math.random() * 1000000)
-}
+/* 
+Generating ID not needed anymore, Mongo generates it itself.
+ */
+// const generateId = () => {
+//   return Math.floor(Math.random() * 1000000)
+// }
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
@@ -40,20 +44,30 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  if (persons.find(p => p.name === body.name)) {
-    return res.status(400).json({
-      error: 'name already exists'
-    })
-  }
+/* 
+Check if a person is already in DB removed.
+I want to integrate with Mongo first in a basic way.
+ */
+  // if (persons.find(p => p.name === body.name)) {
+  //   return res.status(400).json({
+  //     error: 'name already exists'
+  //   })
+  // }
 
-  const person = {
-    id: generateId(),
+  console.log("adding a person..")
+  const person = new Person({
+    // id: generateId(),
     name: body.name,
     number: body.number
-  }
+  })
 
-  persons = persons.concat(person)
-  console.log(req.headers)
+  person.save().then(result => {
+    console.log('person added')
+    mongoose.connection.close()
+  })
+
+  // persons = persons.concat(person)
+  // console.log(req.headers)
   res.json(person)
   res.status(200).end()
 })
