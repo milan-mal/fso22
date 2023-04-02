@@ -38,7 +38,7 @@ app.post('/api/persons', (req, res) => {
   }
 
 /* 
-Check if a person is already in DB removed.
+TODO Check if a person is already in DB removed.
 I want to integrate with Mongo first in a basic way.
  */
   // if (persons.find(p => p.name === body.name)) {
@@ -62,6 +62,7 @@ I want to integrate with Mongo first in a basic way.
   res.status(200).end()
 })
 
+// TODO Mongo integration.
 app.get('/api/persons/:id', (req, res) => {
     const id = Number(req.params.id)
     const person = persons.find(person => person.id === id)
@@ -74,11 +75,18 @@ app.get('/api/persons/:id', (req, res) => {
     }
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    persons = persons.filter(person => person.id !== id)
-
-    res.status(204).end()
+app.delete('/api/persons/:id', (req, res, next) => {
+    Person.findByIdAndDelete( req.params.id )
+      .then(result => {
+        if(result) {
+          res.statusMessage = "person successfully deleted"
+          res.status(204).end()
+        } else {
+          res.statusMessage = "person not found"
+          res.status(404).end()
+        }
+      })
+      .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
