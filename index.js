@@ -47,7 +47,19 @@ I want to integrate with Mongo first in a basic way.
   //   })
   // }
 
-  console.log("adding a person..")
+/*  I removed the following code to check if a person with the same name is already in the database.
+    This check should be on the FE. BE should only handle the PUT request
+     */
+  // Person.find({ name: "Dashenka" })
+  //   .then(result => {
+  //     console.log('name found in database')
+  //     if(result) {
+  //       console.log('updating a person..')
+  //       return
+  //     }
+  //   })
+
+  console.log('adding a person..')
   const person = new Person({
     name: body.name,
     number: body.number
@@ -60,6 +72,17 @@ I want to integrate with Mongo first in a basic way.
 
   res.json(person)
   res.status(200).end()
+})
+
+app.put('/api/persons/:id', (req, res, next) => {
+  console.log('updating a person..')
+  const id = req.params.id
+  const body = req.body
+  const number = body.number
+  
+  Person.findByIdAndUpdate(id, { number: number}, { new: true })
+    .then(updatedPerson => res.json(updatedPerson))
+    .catch(error => next(error))
 })
 
 // TODO Mongo integration.
