@@ -30,7 +30,7 @@ app.get('/api/persons', (req, res) => {
     res.json(persons))
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.name || !body.number) {
@@ -39,52 +39,32 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-/* 
-TODO Check if a person is already in DB removed.
-I want to integrate with Mongo first in a basic way.
- */
-  // if (persons.find(p => p.name === body.name)) {
-  //   return res.status(400).json({
-  //     error: 'name already exists'
-  //   })
-  // }
-
-/*  I removed the following code to check if a person with the same name is already in the database.
-    This check should be on the FE. BE should only handle the PUT request
-     */
-  // Person.find({ name: "Dashenka" })
-  //   .then(result => {
-  //     console.log('name found in database')
-  //     if(result) {
-  //       console.log('updating a person..')
-  //       return
-  //     }
-  //   })
-
   console.log('adding a person..')
   const person = new Person({
     name: body.name,
     number: body.number
   })
 
-  person.save().then(result => {
-    console.log('person added')
-    mongoose.connection.close()
-  })
-
-  res.json(person)
-  res.status(200).end()
+  person.save()
+    .then(savedPerson => {
+      console.log('person added')
+      res.json(savedPerson)
+    })
+    .catch(err => next(err))
 })
 
 app.put('/api/persons/:id', (req, res, next) => {
   console.log('updating a person..')
   const id = req.params.id
-  const body = req.body
-  const number = body.number
+  const { name, number } = req.body
   
-  Person.findByIdAndUpdate(id, { number: number}, { new: true })
+  Person.findByIdAndUpdate(
+    id,
+    { number: number},
+    { new: true , runValidators: true, context: 'query'}
+  )
     .then(updatedPerson => res.json(updatedPerson))
-    .catch(error => next(error))
+    .catch(err => next(err))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
@@ -118,6 +98,8 @@ const errorHandler = (error, req, res, next) => {
   console.error(error.message)
   if (error.name === 'CastError') {
     return res.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
   }
   next(error)
 }
