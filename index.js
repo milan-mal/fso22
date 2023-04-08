@@ -19,8 +19,10 @@ app.get('/', (req, res) => {
     res.send('<h1>Congrats! You\'ve reached the server.</h1>')
 })
 
-app.get('/info', (req, res) => {
-    res.send(`<p>Phone book has info for ${persons.length} people</p><p>${new Date}</p>`)
+app.get('/info', (req, res, next) => {
+  Person.estimatedDocumentCount()
+    .then(number => res.send(`<p>Phone book has info for ${number} people</p><p>${new Date}</p>`))
+    .catch(error => next(error))
 })
 
 app.get('/api/persons', (req, res) => {
@@ -85,17 +87,11 @@ app.put('/api/persons/:id', (req, res, next) => {
     .catch(error => next(error))
 })
 
-// TODO Mongo integration.
-app.get('/api/persons/:id', (req, res) => {
-    const id = Number(req.params.id)
-    const person = persons.find(person => person.id === id)
-
-    if (person) {
-        res.json(person)
-    } else {
-        res.statusMessage = "Person with this id doesn't exist."
-        res.status(404).end()
-    }
+app.get('/api/persons/:id', (req, res, next) => {
+    const id = req.params.id
+    Person.findById(id)
+      .then(person => res.json(person))
+      .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
