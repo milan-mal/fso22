@@ -4,19 +4,16 @@ const app = express()
 const cors = require('cors')
 require('dotenv').config()
 const Person = require('./models/person.js')
-const { mongo, default: mongoose } = require('mongoose')
 
 app.use(express.json())
 app.use(express.static('build'))
 app.use(cors())
 
-morgan.token('body', (req, res) => JSON.stringify(req.body))
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
 
-let persons = []
-
 app.get('/', (req, res) => {
-    res.send('<h1>Congrats! You\'ve reached the server.</h1>')
+  res.send('<h1>Congrats! You\'ve reached the server.</h1>')
 })
 
 app.get('/info', (req, res, next) => {
@@ -56,36 +53,36 @@ app.post('/api/persons', (req, res, next) => {
 app.put('/api/persons/:id', (req, res, next) => {
   console.log('updating a person..')
   const id = req.params.id
-  const { name, number } = req.body
-  
+  const { number } = req.body
+
   Person.findByIdAndUpdate(
     id,
-    { number: number},
-    { new: true , runValidators: true, context: 'query'}
+    { number: number },
+    { new: true , runValidators: true, context: 'query' }
   )
     .then(updatedPerson => res.json(updatedPerson))
     .catch(err => next(err))
 })
 
 app.get('/api/persons/:id', (req, res, next) => {
-    const id = req.params.id
-    Person.findById(id)
-      .then(person => res.json(person))
-      .catch(error => next(error))
+  const id = req.params.id
+  Person.findById(id)
+    .then(person => res.json(person))
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
-    Person.findByIdAndDelete( req.params.id )
-      .then(result => {
-        if(result) {
-          res.statusMessage = "person successfully deleted"
-          res.status(204).end()
-        } else {
-          res.statusMessage = "person not found"
-          res.status(404).end()
-        }
-      })
-      .catch(error => next(error))
+  Person.findByIdAndDelete( req.params.id )
+    .then(result => {
+      if(result) {
+        res.statusMessage = 'person successfully deleted'
+        res.status(204).end()
+      } else {
+        res.statusMessage = 'person not found'
+        res.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
